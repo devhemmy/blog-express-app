@@ -1,7 +1,8 @@
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-const Blog = require("./models/blog");
+const router = require("./Routes/blogRoutes");
+const { urlencoded } = require("express");
 
 // express app
 const app = express();
@@ -19,6 +20,7 @@ mongoose
 
 //middlewares and static files
 app.use(express.static("public"));
+app.use(urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 // register view engine
@@ -44,24 +46,11 @@ app.get("/", (req, res) => {
   //   res.render("index", { title: "Home", blogs });
 });
 
-app.get("/blogs", (req, res) => {
-  Blog.find()
-    .sort({ createdAt: -1 })
-    .then((results) => {
-      res.render("index", { title: "All Blogs", blogs: results });
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-});
-
 app.get("/about", (req, res) => {
   res.render("about", { title: "About" });
 });
 
-app.get("/blogs/create", (req, res) => {
-  res.render("create", { title: "Create a new blog" });
-});
+app.use("/blogs", router);
 
 // 404 page
 app.use((req, res) => {
